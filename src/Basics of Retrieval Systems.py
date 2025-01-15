@@ -1,9 +1,15 @@
+import os  # used to defined directory for NLTK data if it needs downloading
 import nltk
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-from rank_bm25 import BM25Okapi
+from rank_bm25 import (
+    BM25Okapi,
+)  # used in step 7, install it like this: !pip install rank_bm25
 
 
+# Function to tokenize and lowercase words and remove stopwords
+# Defined for the first time when working on Step 4: Preprocessing
+# and then used in some of the following steps as well
 def preprocess(text):
     # Tokenize the text into words and convert to lowercase
     lowercase_words = nltk.word_tokenize(text.lower())
@@ -18,15 +24,9 @@ def preprocess(text):
     return result
 
 
-# Function to search documents with TF-IDF
-def search_tfidf(query, vectorizer, tfidf_matrix):
-    # Transform query into TF-IDF vector
-    query_vec = vectorizer.transform([query])
-    # Compute similarity between query vector and each document vector
-    results = np.dot(tfidf_matrix, query_vec.T).toarray()
-    return results
-
-
+# Function to tokenize, lowercase, and remove stopwords
+# The difference from the preprocess function is that it excludes logical operators (AND, OR, NOT)
+# This preprocessing function is used in boolean search
 def preprocess_for_boolean(text):
     # Tokenize the text into words and convert to lowercase
     lowercase_words = nltk.word_tokenize(text.lower())
@@ -39,7 +39,18 @@ def preprocess_for_boolean(text):
     return result
 
 
+# Function to search documents with TF-IDF
+# Defined for the first time when working on Step 5: TF-IDF
+def search_tfidf(query, vectorizer, tfidf_matrix):
+    # Transform query into TF-IDF vector
+    query_vec = vectorizer.transform([query])
+    # Compute similarity between query vector and each document vector
+    similarity = np.dot(tfidf_matrix, query_vec.T).toarray()
+    return similarity
+
+
 # Function to search documents using boolean search
+# Defined for the first time when working on Step 6: BOOLEAN
 def search_boolean(query, documents):
     # Preprocess query and split it into tokens
     query_tokens = preprocess_for_boolean(query)
@@ -80,8 +91,10 @@ def search_boolean(query, documents):
     return results
 
 
+# Function to search documents using BM25
 def search_bm25(query, bm25):
-    # Process query
+    # Process query, using the same preprocessing as for TF-IDF
+    # because here we don't deal with logical operators (AND, OR, NOT)
     query_tokens = preprocess(query)
     # Get BM25 scores for query against indexed documents
     results = bm25.get_scores(query_tokens)
@@ -192,90 +205,185 @@ documents = [
     "The coastal town of Makarska is known for its beautiful beaches and lively nightlife.",
 ]
 
-# Sample text
-text = "Sailing in Croatia offers stunning views of the Adriatic Sea."
 
 if __name__ == "__main__":
 
-    # =====================================================
-    # Download NLTK data (to be done only once)
-    # =====================================================
+    # ==============================================================
+    # Step 1 (optional)
+    # DOWNLOAD NLTK DATA
+    #
+    # Downloading needs to be done only once, so it is commented out
+    # because the data comes together with the repository
+    # ==============================================================
 
-    nltk_data_dir = "/Users/viktorijatrubaciute/GitHub/ai-rag-gen/data/nltk_data"
-    # Download the 'punkt' tokenizer model
+    # # Define the path to the NLTK data directory
+    # project_root = os.path.dirname(os.path.abspath(__file__))
+    # nltk_data_dir = os.path.join(os.path.dirname(project_root), "data", "nltk_data")
+    # # Download the 'punkt' tokenizer model
     # nltk.download("punkt", download_dir=nltk_data_dir)
-    # NOTE: Needed to download punkt_tab as well, to avoid error
+    # # NOTE: I Needed to download punkt_tab as well,
+    # # otherwise I was getting an error
     # nltk.download("punkt_tab", download_dir=nltk_data_dir)
-
-    # Download the 'stopwords' corpus from nltk
+    # # Download the 'stopwords' corpus from nltk
     # nltk.download("stopwords", download_dir=nltk_data_dir)
 
+    # End of Step 1
+    # ==============================================================
+
+    # ==============================================================
+    # Step 2
+    # DEFINE PATH TO DATA
+    # ==============================================================
+
+    # Same code as above to define NLTK data directory, just thought
+    # it is tidier to comment out the WHOLE Step 1 and then repeat
+    # directory definition separately
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    nltk_data_dir = os.path.join(os.path.dirname(project_root), "data", "nltk_data")
     # Let nltk know where to look for the data
     nltk.data.path.append(nltk_data_dir)
 
-    # =====================================================
+    # End of Step 2
+    # ==============================================================
+
+    # ==============================================================
+    # Step 3
+    # TOKENIZATION
+    # ==============================================================
+
+    print("\nTOKENIZATION\n")
+
+    # Sample text
+    text = "Sailing in Croatia offers stunning views of the Adriatic Sea. The city of Sibenik is home to the impressive St. James's Cathedral, a UNESCO World Heritage site."
 
     # Tokenize the text into sentences
     # Splits the input text into a list of sentences
     sentences = nltk.sent_tokenize(text)
-    print("Sentences:", sentences)
+    print(f"Sentences: {sentences}\n")
+    # Notice how the tokenizer handles abbreviations like 'St.'
+    # and also single and double quotes in the console output!
 
     # Tokenize the text into words
     # Splits the input text into a list of words and punctuation marks
     words = nltk.word_tokenize(text)
-    print("Words:", words)
+    print(f"Words: {words}\n")
+    # Notice how the tokenizer handles the second sentence :/
 
-    # Apply the preprocess function to each document
+    # End of Step 3
+    # ==============================================================
+
+    # ==============================================================
+    # Step 4
+    # PREPROCESSING
+    # ==============================================================
+
+    print("\nPREPROCESSING\n")
+
+    # Funtion to preprocess step is defined ABOVE (under imports)
+    # Here we apply that function to each document
     preprocessed_docs = [" ".join(preprocess(doc)) for doc in documents]
-    # print(preprocessed_docs)
+    print(f"First 5 preprocessed documents:\n{preprocessed_docs[:5]}\n")
+
+    # End of Step 4
+    # ==============================================================
+
+    # ==============================================================
+    # Step 5
+    # TF-IDF
+    #
+    # Since outputs are long, I cut them to first 5 elements,
+    # but feel free to adjust that in the code
+    # ==============================================================
+
+    print("\nTF-IDF\n")
 
     # Create an instance of TfidfVectorizer
     vectorizer = TfidfVectorizer()
     # Fit vectorizer on preprocessed documents and transform them into TF-IDF matrix
     tfidf_matrix = vectorizer.fit_transform(preprocessed_docs)
-    # print(tfidf_matrix.toarray())
-
-    # =====================================================
+    print(f"TF-IDF matrix:\n{tfidf_matrix.toarray()}\n")
 
     # Sample query
     query = "Sailing in Croatia is fun."
     # Transform query into TF-IDF vector
     query_vec = vectorizer.transform([query])
-    # print(query_vec.T.toarray())
+    print(
+        f"TF-IDF vector of the query (I only display first 5 and they're all zeroes, I know):\n{query_vec.T.toarray()[:5]}\n"
+    )
     # Compute similarity between query vector and each document vector
-    results = np.dot(tfidf_matrix, query_vec.T).toarray()
-    # print(f"Results: {results}")
+    similarity = np.dot(tfidf_matrix, query_vec.T).toarray()
+    print(
+        f"Computed similarity between document and query vectors (first 5):\n{similarity[:5]}\n"
+    )
 
-    # Get results, sort them based on the score
+    # Now use tfidf_matrix computed a little bit earlier,
+    # and search_tfidf() function defined way above (under imports)
+    # to search for documents that match the query
     results = search_tfidf(query, vectorizer, tfidf_matrix)
+    # sort the results based on their scores
     sorted_results = sorted(enumerate(results), key=lambda x: x[1][0], reverse=True)
-    print(sorted_results)
-    # Iterate over sorted results to display the outcome
-    for idx, score in sorted_results:
+    # Iterate over sorted results to print them nicely
+    print(f"First 5 results of TF-IDF search for query '{query}':")
+    for i, (idx, score) in enumerate(sorted_results):
         print(f"Score: {score[0]:.2f} => Document: {documents[idx]}")
+        if i > 3:
+            break
 
-    # =====================================================
+    # End of Step 5
+    # ==============================================================
+
+    # ==============================================================
+    # Step 6
+    # BOOLEAN
+    # ==============================================================
+
+    print("\n\nBOOLEAN\n")
 
     # Sample query
     query = "sailing not Croatia"
-    # Perform boolean search
+    # Perform boolean search using function defined above
+    # (if you've been following the code so far then you know where)
     results = search_boolean(query, documents)
-    # Display results
+    # Iterate over results to print them nicely
+    # no sorting here, because boolean search doesn't return scores...
+    # I also don't clip results at 5, there aren't too many of them anyway
+    print(f"All results of boolean search for query '{query}':")
     for idx, doc in results:
         print(f"Document {idx}: {doc}")
 
-    # =====================================================
+    # End of Step 6
+    # ==============================================================
+
+    # ==============================================================
+    # Step 7
+    # PROBABILISTIC RETRIEVAL MODEL
+    #
+    #
+    #
+    # ==============================================================
+
+    print("\n\nPROBABILISTIC RETRIEVAL MODEL\n")
 
     # Sample query
     query = "top 10 things to do in Croatia"
-    # Tokenize each document
+    # Tokenize each document (using function that does not exclude logical operators)
     tokenized_docs = [preprocess(doc) for doc in documents]
     # Initialize model
     bm25 = BM25Okapi(tokenized_docs)
-    # Perform BM25 search
+    # Perform BM25 search using function defined above
+    # (if you've been following the code so far then you know where)
     bm25_results = search_bm25(query, bm25)
     # Sort results in descending order of relevance scores
     sorted_bm25_results = np.argsort(bm25_results)[::-1]
-    # Display sorted results
-    for idx in sorted_bm25_results:
+    # Iterate over sorted results to print them nicely
+    print(f"First 5 results of TF-IDF search for query '{query}':")
+    for i, idx in enumerate(sorted_bm25_results):
         print(f"Score: {bm25_results[idx]:.4f} => Document: {documents[idx]}")
+        if i > 3:
+            break
+
+    # End of Step 7
+    # ==============================================================
+
+    print("\n\nEnd of the script")
+    print("I hope you found it useful and interesting!\n")
