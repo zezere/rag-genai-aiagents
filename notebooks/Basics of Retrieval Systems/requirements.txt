@@ -1,0 +1,8 @@
+nltk==3.9.1
+numpy==1.26.4
+rank_bm25==0.2.2
+scikit-learn==1.5.2
+IPython==7.34.0
+jupyter_client==6.1.12
+jupyter_core==5.7.2
+notebook==6.5.5
