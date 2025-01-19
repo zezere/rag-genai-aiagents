@@ -13,10 +13,11 @@ This repository contains my implementations of exercises and code examples from 
    ```bash
    git clone https://github.com/zezere/rag-genai-aiagents.git
 2. **Explore the code**:
-   Navigate to the **`src/`** folder, where you’ll find Python scripts - for now one script for exercises in Section 3 of the course.
+   Navigate to the **`src/`** folder, where you’ll find Python scripts - for now one script for exercises in Section 3 of the course, and another script for Section 5.
 3. **Run the code**:
    ```bash
    python src/basics_of_retrieval_systems.py
+   python src/basics_of_generation_models.py
 
 ## Requirements
 - in file `requirements.txt`
