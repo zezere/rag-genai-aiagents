@@ -1,10 +1,10 @@
 import os  # used to defined directory for NLTK data if it needs downloading
-import nltk
+import nltk  # pip install nltk
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer  # pip install scikit-learn
 from rank_bm25 import (
     BM25Okapi,
-)  # used in step 7, install it like this: !pip install rank_bm25
+)  # used in step 7, install it like this: pip install rank_bm25
 
 
 # Function to tokenize and lowercase words and remove stopwords
@@ -357,9 +357,6 @@ if __name__ == "__main__":
     # ==============================================================
     # Step 7
     # PROBABILISTIC RETRIEVAL MODEL
-    #
-    #
-    #
     # ==============================================================
 
     print("\n\nPROBABILISTIC RETRIEVAL MODEL\n")
