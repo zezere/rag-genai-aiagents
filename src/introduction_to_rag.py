@@ -69,8 +69,18 @@ documents = [
 if __name__ == "__main__":
     print("Initializing model...")
     # Use sentence-transformers directly instead of raw transformers
-    model = SentenceTransformer('sentence-transformers/paraphrase-MiniLM-L6-v2')
+    model = SentenceTransformer("sentence-transformers/paraphrase-MiniLM-L6-v2")
     model = model.cpu()
+
+    # ====================================================================
+    # Step 1. Tokenization and Embeddings
+    #
+    # This part is different from Diogo's code, because we are using
+    # sentence-transformers instead of transformers, due to the issue
+    # mentioned in the README.
+    # ====================================================================
+
+    print("\n\n\n")
 
     print("Processing documents...")
     document_embeddings = []
@@ -82,7 +92,6 @@ if __name__ == "__main__":
             # Get embeddings directly
             embedding = model.encode([doc], convert_to_numpy=True)
             document_embeddings.append(embedding[0])
-            print(f"Successfully processed document {i+1}")
         except Exception as e:
             print(f"Error processing document {i+1}: {e}")
             continue

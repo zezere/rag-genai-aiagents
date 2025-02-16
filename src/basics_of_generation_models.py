@@ -4,10 +4,7 @@ from transformers import (
 )  # requires install: pip install transformers
 
 # Installing pyTorch is tricky for M1/2 macbooks and for python 3.13 (as of January 2025)
-# I have both problems, so here is how I solved it:
-# 1. deactivate current virtual environment
-# 2. create a new virtual environment with python 3.8: conda create --name ai-rag-gen-3-8 python=3.8
-# 3. in this new venv, install pytorch using a different URL that is meant for macbooks with M1/2 chips: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+# You need to have an older version of python (I went with 3.8)
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -54,7 +51,7 @@ def generate_text(prompt, model, tokenizer, max_length=100):
     outputs = model.generate(
         input_ids=input_ids, attention_mask=attention_mask, max_length=max_length
     )
-    
+
     # Decode generated text, skipping special tokens, and return it
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
