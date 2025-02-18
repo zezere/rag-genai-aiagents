@@ -1,5 +1,6 @@
 import numpy as np
-from sentence_transformers import SentenceTransformer  # New import
+from sentence_transformers import SentenceTransformer  # Used instead of transformers
+import faiss
 
 # Sample dataset with facts about Berlin
 documents = [
@@ -66,8 +67,35 @@ documents = [
     "Berlin's International Congress Center (ICC) is one of the largest conference centers in the world.",
 ]
 
+
+def embed_text(text, model):
+    document_embeddings = []
+    for i, doc in enumerate(text):
+        try:
+            embedding = model.encode([doc], convert_to_numpy=True)
+            document_embeddings.append(embedding[0])
+        except Exception as e:
+            print(f"Error processing document {i+1}: {e}")
+            continue
+    return np.array(document_embeddings)
+
+
+def retrieve(query, model, index, documents, top_k=3):
+    # Generate the embedding for the query using the provided model
+    # NOTE: no tokenizer in our case (different from Diogo's code),
+    # because we are using sentence-transformers library which handles
+    # the tokenization internally.
+    query_embedding = embed_text(query, model)
+
+    # Search the FAISS index for the top_k most similar documents
+    distances, indices = index.search(query_embedding, top_k)
+
+    # Return the most similar documents and their corresponding distances
+    return [documents[i] for i in indices[0]], distances[0]
+
+
 if __name__ == "__main__":
-    print("Initializing model...")
+
     # Use sentence-transformers directly instead of raw transformers
     model = SentenceTransformer("sentence-transformers/paraphrase-MiniLM-L6-v2")
     model = model.cpu()
@@ -80,22 +108,59 @@ if __name__ == "__main__":
     # mentioned in the README.
     # ====================================================================
 
-    print("\n\n\n")
+    print("\n\nTOKENIZATION AND EMBEDDINGS\n")
 
-    print("Processing documents...")
     document_embeddings = []
 
-    # Process documents one at a time
     for i, doc in enumerate(documents):
         try:
-            print(f"Processing document {i+1}/{len(documents)}: {doc[:50]}...")
-            # Get embeddings directly
+            # Get embeddings for the document and append to the list
             embedding = model.encode([doc], convert_to_numpy=True)
             document_embeddings.append(embedding[0])
         except Exception as e:
             print(f"Error processing document {i+1}: {e}")
             continue
 
-    print("Converting to numpy array...")
+    # Covert to array because it's more convenient to work with
     document_embeddings = np.array(document_embeddings)
-    print(f"Done! Shape of embeddings: {document_embeddings.shape}")
+    # Check how it looks
+    print(f"Done! Shape of embeddings: {document_embeddings.shape[1]}")
+    # And now that this code works very well, we turn it into a function
+    # which is above the "__main__"
+
+    # ====================================================================
+    # Step 2. Build the Retrieval system with FAISS
+    #
+    # NOTE: This code is close to Diogo's, but results are different.
+    # ====================================================================
+
+    print("\n\nBUILD THE RETRIEVAL SYSTEM WITH FAISS\n")
+
+    # Initialize FAISS index for L2 (Euclidean) distance
+    # Create an index with dimension equal to the size of the document embeddings
+    index = faiss.IndexFlatL2(document_embeddings.shape[1])
+    # Add the document embeddings to the FAISS index for similarity search
+    index.add(document_embeddings)
+
+    # Print some information about the index
+    print(f"Number of documents in the index: {index.ntotal}")
+    print(f"Dimension of the document embeddings: {index.d}")
+
+    # At this point, we can define the retrieve function,
+    # we do it above the "__main__".
+    # Here, we test how it works:
+    query = "What is the capital of Germany?"
+    retrieved_docs, distances = retrieve(query, model, index, documents, top_k=5)
+    print("\nRetrieved documents:\n")
+    for doc, distance in zip(retrieved_docs, distances):
+        print(f"Distance: {distance:.2f}, Document: {doc}")
+
+    # NOTE: I do not get the same results as Diogo.
+
+    # ====================================================================
+    # Step 3. Integrating the generative system
+    #
+    #
+    # ====================================================================
+
+    print("\n\nINTEGRATING THE GENERATIVE SYSTEM\n")
