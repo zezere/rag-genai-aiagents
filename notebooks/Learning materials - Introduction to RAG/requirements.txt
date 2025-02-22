@@ -1,8 +1,11 @@
-faiss-cpu==1.9.0.post1
-numpy==1.26.4
-torch==2.5.1+cu121
-transformers==4.46.3
-IPython==7.34.0
-jupyter_client==6.1.12
-jupyter_core==5.7.2
-notebook==6.5.5
+# Some of these packages are throwing security warnings
+# and need to be updated to later versions.
+#
+# faiss-cpu==1.9.0.post1
+# numpy==1.26.4
+# torch==2.5.1+cu121
+# transformers==4.46.3
+# IPython==7.34.0
+# jupyter_client==6.1.12
+# jupyter_core==5.7.2
+# notebook==6.5.5
