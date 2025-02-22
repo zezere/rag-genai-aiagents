@@ -1,6 +1,14 @@
+import warnings
+
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 import numpy as np
-from sentence_transformers import SentenceTransformer  # Used instead of transformers
-import faiss
+from sentence_transformers import (
+    SentenceTransformer,
+)  # Used in Step 1 instead of transformers
+import faiss  # Used in Step 2
+from transformers import AutoModelForCausalLM  # Used in Step 3
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer  # Changed model class
 
 # Sample dataset with facts about Berlin
 documents = [
@@ -80,18 +88,92 @@ def embed_text(text, model):
     return np.array(document_embeddings)
 
 
+# Function defined for Step 2
 def retrieve(query, model, index, documents, top_k=3):
     # Generate the embedding for the query using the provided model
     # NOTE: no tokenizer in our case (different from Diogo's code),
     # because we are using sentence-transformers library which handles
     # the tokenization internally.
-    query_embedding = embed_text(query, model)
-
+    query_embedding = embed_text([query], model)
     # Search the FAISS index for the top_k most similar documents
     distances, indices = index.search(query_embedding, top_k)
-
     # Return the most similar documents and their corresponding distances
     return [documents[i] for i in indices[0]], distances[0]
+
+
+# Function defined for Step 3
+# Differently from Diogo's code, this function also joins retrieved docs into a context string,
+# so there is no need to do that outside of this function.
+def generate_text(query, retrieved_docs, tokenizer, generator, max_length=100):
+    # Combine context and query into a prompt
+    prompt = f"Context: {' '.join(retrieved_docs)}\n\nQuestion: {query}\n\nAnswer:"
+    # Tokenize the input - using batch_encode_plus instead
+    inputs = tokenizer.batch_encode_plus(
+        [prompt], return_tensors="pt", add_special_tokens=True
+    )
+    outputs = generator.generate(
+        inputs["input_ids"],
+        max_length=max_length,
+        num_return_sequences=1,
+        do_sample=True,
+        temperature=0.7,
+    )
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return response
+
+
+# Function defined for Step 4
+def rag(query, embedding_model, index, documents, tokenizer, generator, top_k):
+    # Retrieve the most relevant documents
+    retrieved_docs, distances = retrieve(
+        query, embedding_model, index, documents, top_k
+    )
+    generated_answer = generate_text(query, retrieved_docs, tokenizer, generator)
+    return generated_answer
+
+
+# Function defined for Step 5
+def is_relevant(distance, threshold=40):
+    return distance < threshold
+
+
+# Also function defined for Step 5
+def rag_with_relevance(
+    query, embedding_model, index, documents, tokenizer, generator, top_k
+):
+    retrieved_docs, distances = retrieve(
+        query, embedding_model, index, documents, top_k
+    )
+    relevant_docs = [
+        doc for doc, distance in zip(retrieved_docs, distances) if is_relevant(distance)
+    ]
+    if not relevant_docs:
+        return "I am sorry, there is no relevant information"
+    return generate_text(query, relevant_docs, tokenizer, generator)
+
+
+# Function defined for Step 6
+def generate_text_with_parameters(
+    query, retrieved_docs, tokenizer, generator, max_length=100
+):
+    # Combine context and query into a prompt
+    prompt = f"Context: {' '.join(retrieved_docs)}\n\nQuestion: {query}\n\nAnswer:"
+    # Tokenize the input - using batch_encode_plus instead
+    inputs = tokenizer.batch_encode_plus(
+        [prompt], return_tensors="pt", add_special_tokens=True
+    )
+    outputs = generator.generate(
+        inputs["input_ids"],
+        max_length=max_length,
+        num_return_sequences=1,
+        do_sample=True,
+        temperature=0.1,  # was 0.7, now we turn it down to 0.1
+        top_k=50,
+        top_p=0.8,
+        repetition_penalty=1.2,
+    )
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return response
 
 
 if __name__ == "__main__":
@@ -131,7 +213,7 @@ if __name__ == "__main__":
     # ====================================================================
     # Step 2. Build the Retrieval system with FAISS
     #
-    # NOTE: This code is close to Diogo's, but results are different.
+    # This code is close to Diogo's.
     # ====================================================================
 
     print("\n\nBUILD THE RETRIEVAL SYSTEM WITH FAISS\n")
@@ -146,21 +228,131 @@ if __name__ == "__main__":
     print(f"Number of documents in the index: {index.ntotal}")
     print(f"Dimension of the document embeddings: {index.d}")
 
-    # At this point, we can define the retrieve function,
+    # At this point, we can define the retrieve() function,
     # we do it above the "__main__".
     # Here, we test how it works:
     query = "What is the capital of Germany?"
-    retrieved_docs, distances = retrieve(query, model, index, documents, top_k=5)
-    print("\nRetrieved documents:\n")
+    print(f"\nTesting with query: {query}")
+    retrieved_docs, distances = retrieve(query, model, index, documents)
+    print("Retrieved documents:")
     for doc, distance in zip(retrieved_docs, distances):
         print(f"Distance: {distance:.2f}, Document: {doc}")
-
-    # NOTE: I do not get the same results as Diogo.
 
     # ====================================================================
     # Step 3. Integrating the generative system
     #
-    #
+    # NOTE: This part was coded using AI very heavily.
+    # Tokenizers are back in the game...
     # ====================================================================
 
     print("\n\nINTEGRATING THE GENERATIVE SYSTEM\n")
+
+    # First load the T5 model and tokenizer
+    model_name = "google/flan-t5-small"
+    t5_model = AutoModelForSeq2SeqLM.from_pretrained(
+        model_name
+    )  # renamed from 'model' to 't5_model'
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    t5_model.to("cpu")
+
+    # Test the RAG pipeline
+    query = "What is Berlin's former airport?"
+    print(f"Testing with query: {query}")
+    retrieved_docs, distances = retrieve(
+        query, model, index, documents, top_k=3
+    )  # this uses sentence transformer model
+    print("Retrieved relevant documents:")
+    for doc, distance in zip(retrieved_docs, distances):
+        print(f"Distance: {distance:.2f}, Document: {doc}")
+
+    # We define the generate_text() function above the "__main__",
+    # then we use retrieved docs as context that we pass into this function.
+    response = generate_text(
+        query, retrieved_docs, tokenizer, t5_model
+    )  # use t5_model here
+    print(f"\nGenerated Response: {response}")
+
+    # ====================================================================
+    # Step 4. RAG system
+    #
+    # Merging retrieval and generation into a single system.
+    # ====================================================================
+
+    print("\n\nRAG SYSTEM\n")
+
+    # We start by defining function rag() above the "__main__".
+    # And then we test this function
+    query = "What is Berlin famous for?"
+    print(f"Testing with query: {query}")
+    answer = rag(query, model, index, documents, tokenizer, t5_model, top_k=3)
+    print(f"\nAnswer: {answer}")
+
+    # Test RAG system with different queries
+    queries = [
+        "What is the capital of Germany?",
+        "What is Berlin famous for?",
+        "Who discovered the way to Brazil?",
+        "What is the most famous person in Lesotho?",
+    ]
+    print("\nTesting with different queries\n")
+    for query in queries:
+        print(f"\nTesting with query: {query}")
+        answer = rag(query, model, index, documents, tokenizer, t5_model, top_k=3)
+        print(f"\nAnswer: {answer}")
+
+    # ====================================================================
+    # Step 5. Improve the relevance
+    #
+    # Improving the definition of relevance and
+    # Improving generation (exploring parameters)
+    # ====================================================================
+
+    print("\n\nIMPROVE THE RELEVANCE\n")
+
+    # We start by checking a few different queries
+    # Yes we did it in previous step, but now we also look at distances
+    for query in queries:
+        retrieved_docs, distances = retrieve(query, model, index, documents, top_k=3)
+        print(f"Query: {query}")
+        print(f"Retrieved documents: {retrieved_docs}")
+        print(f"Distances: {distances}\n")
+
+    # Now we define function is_relevant() to check document relevance based on distance
+    # Look above __main__ for the definition of this function, as always.
+    # Then we will use it to discard irrelevant documents based on a threshold
+
+    # Next, we define a new rag() function, let's call it rag_with_relevance()
+    # This function will use the is_relevant() function to discard irrelevant documents
+    # based on a threshold.
+    # Look above __main__ ....
+
+    # And here we test how this new function works
+    for query in queries:
+        print(f"\nTesting with query: {query}")
+        answer = rag_with_relevance(
+            query, model, index, documents, tokenizer, t5_model, top_k=3
+        )
+        print(f"\nAnswer: {answer}")
+
+    # ====================================================================
+    # Step 6. Improve the Generation Systems
+    #
+    # Outputs can be further improved by exploring parameters.
+    # In this step we tweak function generate_text() by adding parameters.
+    # ====================================================================
+
+    print("\n\nIMPROVE THE GENERATION SYSTEMS\n")
+
+    # We start by redefining the function for generating text.
+    # We call it generate_text_with_parameters(), turn down temperature
+    # and add other parameters.
+    # Look above __main__ for the definition of this function.
+
+    # We test the new function with the same query as before
+    for query in queries:
+        print(f"\nTesting with query: {query}")
+        answer = generate_text_with_parameters(
+            query, retrieved_docs, tokenizer, t5_model
+        )
+        print(f"\nAnswer: {answer}")
+    # NOTE: results are terrible, but it's exactly what Diogo was expecting!
