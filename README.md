@@ -16,9 +16,10 @@ This repository contains my implementations of exercises and code examples from 
 2. **Explore the code**:
    Navigate to the **`src/`** folder, where you'll find Python scripts, each corresponding to an exercise in the course.
 3. **The order of execution**:
-   1. `basics_of_retrieval_systems.py`
-   2. `basics_of_generation_models.py`
-   3. `introduction_to_rag.py`
+   1. `basics_of_retrieval_systems.py` (Section 3)
+   2. `basics_of_generation_models.py` (Section 5)
+   3. `introduction_to_rag.py` (Section 7)
+   4. `openai_api.py` (Section 9)
 
 ## Requirements
 - See `requirements.txt` for the full list of dependencies
