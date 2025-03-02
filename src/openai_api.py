@@ -41,23 +41,23 @@ if __name__ == "__main__":
     # adopt a persona of Kendrick Lamar / Taylor Swift.
     # ====================================================================
 
-    # print("\n\nGENERATING TEXT WITH OPENAI\n")
+    print("\n\nGENERATING TEXT WITH OPENAI\n")
 
-    # system_prompt = "You are Kendrick Lamar"
-    # user_prompt = "Write a diss song about Drake with 2 verses and a chorus."
+    system_prompt = "You are Kendrick Lamar"
+    user_prompt = "Write a diss song about Drake with 2 verses and a chorus."
 
-    # # Generate text
-    # response = client.chat.completions.create(
-    #     model=MODEL,
-    #     messages=[
-    #         {"role": "system", "content": system_prompt},
-    #         {"role": "user", "content": user_prompt},
-    #     ],
-    # )
+    # Generate text
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+    )
 
-    # print(f"System prompt: {system_prompt}")
-    # print(f"User prompt: {user_prompt}")
-    # print(f"\nGenerated text:\n\n{response.choices[0].message.content}")
+    print(f"System prompt: {system_prompt}")
+    print(f"User prompt: {user_prompt}")
+    print(f"\nGenerated text:\n\n{response.choices[0].message.content}")
 
     # ====================================================================
     # Step 3. Text Generation with Parameters
@@ -66,24 +66,24 @@ if __name__ == "__main__":
     # adjusting parameters like temperature and top_p.
     # ====================================================================
 
-    # print("\n\nTEXT GENERATION WITH PARAMETERS\n")
+    print("\n\nTEXT GENERATION WITH PARAMETERS\n")
 
-    # # Generate text
-    # response = client.chat.completions.create(
-    #     model=MODEL,
-    #     messages=[
-    #         {"role": "system", "content": system_prompt},
-    #         {"role": "user", "content": user_prompt},
-    #     ],
-    #     temperature=1.2,
-    #     top_p=1.0,
-    #     presence_penalty=0.0,
-    #     frequency_penalty=0.0,
-    # )
+    # Generate text
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=1.2,
+        top_p=1.0,
+        presence_penalty=0.0,
+        frequency_penalty=0.0,
+    )
 
-    # print(f"System prompt: {system_prompt}")
-    # print(f"User prompt: {user_prompt}")
-    # print(f"\nGenerated text:\n\n{response.choices[0].message.content}")
+    print(f"System prompt: {system_prompt}")
+    print(f"User prompt: {user_prompt}")
+    print(f"\nGenerated text:\n\n{response.choices[0].message.content}")
 
     # ====================================================================
     # Step 4. Interacting with Images
@@ -91,26 +91,26 @@ if __name__ == "__main__":
     # We will use OpenAI API to analyze an image.
     # ====================================================================
 
-    # print("\n\nINTERACTING WITH IMAGES\n")
+    print("\n\nINTERACTING WITH IMAGES\n")
 
-    # # URL of the image
-    # url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+    # URL of the image
+    url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
 
-    # # Our prompt will consist of two parts:
-    # # - question as string and
-    # # - image passed via URL.
-    # user_content = [
-    #     {
-    #         "type": "text",
-    #         "text": "Describe the image",
-    #     },
-    #     {"type": "image_url", "image_url": {"url": url, "detail": "high"}},
-    # ]
-    # # Use chat completions as usually, only the content is now more complex
-    # response = client.chat.completions.create(
-    #     model=MODEL, messages=[{"role": "user", "content": user_content}]
-    # )
-    # print(f"\nResponse:\n\n{response.choices[0].message.content}")
+    # Our prompt will consist of two parts:
+    # - question as string and
+    # - image passed via URL.
+    user_content = [
+        {
+            "type": "text",
+            "text": "Describe the image",
+        },
+        {"type": "image_url", "image_url": {"url": url, "detail": "high"}},
+    ]
+    # Use chat completions as usually, only the content is now more complex
+    response = client.chat.completions.create(
+        model=MODEL, messages=[{"role": "user", "content": user_content}]
+    )
+    print(f"\nResponse:\n\n{response.choices[0].message.content}")
 
     # ====================================================================
     # Step 5. Using Base64 Encoded Images
