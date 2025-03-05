@@ -1,0 +1,13 @@
+CategoryTitle,CategoryTitleEn,SubcategoryTitle,SubcategoryTitleEn,ItemName,ItemNameEn,ItemPrice,Calories,PortionSize,Availability,ItemDescription,ItemDescriptionEn
+"SOPAS","SOUPS","","","Sopa Won Ton","Won Ton Soup",3.95,,"1 unid",,"Paksoy, Porco e Camarão","Paksoy, Pork & Shrimp"
+"SOPAS","SOUPS","","","Sopa Vegetariana","Vegetarian Soup",3.95,,"1 unid",,"Paksoy, Bambu, Cogumelo e Verduras","Paksoy, Bamboo, Mushroom & Vegetables"
+"ARROZ & VERDURAS","RICE & VEGETABLES","","","Arroz branco","Steamed Rice",1.95,,"1 unid",,"Arroz ao vapor","Steamed Rice"
+"ARROZ & VERDURAS","RICE & VEGETABLES","","","Paksoy ao vapor","Steamed Paksoy",2.40,,"1 unid",,"Paksoy ao vapor com Coentros","Steamed Paksoy with Coriander"
+"SIAO LONG PAO","SIAO LONG PAO","","","Siao Long Pao Tradicional","Traditional Siao Long Pao",4.50,,"3 unid",,"Porco, Paksoy e Cogumelo Shiitake","Pork, Paksoy & Shiitake Mushroom"
+"SIAO LONG PAO","SIAO LONG PAO","","","Siao Long Pao Negro","Black Siao Long Pao",4.50,,"3 unid",,"Porco, Gengibre e Cebolinho","Pork, Ginger & Chives"
+"GYOZAS","GYOZAS","","","Gyoza Vegetais","Vegetable Gyoza",4.50,,"3 unid",,"Veg","Veg"
+"GYOZAS","GYOZAS","","","Gyoza Camarão","Shrimp Gyoza",4.50,,"3 unid",,"Camarão","Shrimp"
+"GYOZAS","GYOZAS","","","Gyoza Pato","Duck Gyoza",4.50,,"3 unid",,"Pato","Duck"
+"GYOZAS","GYOZAS","","","Gyoza Galinha","Chicken Gyoza",4.50,,"3 unid",,"Galinha","Chicken"
+"PRATOS","DISHES","","","Frango BEIJING","Beijing Chicken",8.95,,"1 unid",,"Frango agridoce envolto em massa croccante","Crispy Sweet & Sour Chicken"
+"PRATOS","DISHES","","","Camarão Penghu","Penghu Shrimp",9.95,,"1 unid",,"Camarão agridoce envolto em massa croccante","Crispy Sweet & Sour Shrimps"

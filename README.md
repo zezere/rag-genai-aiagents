@@ -20,6 +20,8 @@ This repository contains my implementations of exercises and code examples from 
    2. `basics_of_generation_models.py` (Section 5)
    3. `introduction_to_rag.py` (Section 7)
    4. `openai_api.py` (Section 9)
+   5. `image_to_excel_genai.py` (Capstone project, section 10)
+   6. `pdf_to_image_genai.py` (Capstone project, section 10)
 
 ## Requirements
 - See `requirements.txt` for the full list of dependencies

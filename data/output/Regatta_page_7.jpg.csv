@@ -1,0 +1,16 @@
+```csv
+CategoryTitle,CategoryTitleEn,SubcategoryTitle,SubcategoryTitleEn,ItemName,ItemNameEn,ItemPrice,Calories,PortionSize,Availability,ItemDescription,ItemDescriptionEn
+"COCKTAILS","","","","Aperol Spritz","",9.00,,,,,
+"COCKTAILS","","","","Caipirinha","",6.00,,,,,
+"COCKTAILS","","","","Mojito","",6.00,,,,,
+"COCKTAILS","","","","Porto & Tonic","",6.00,,,,,
+"COCKTAILS","","","","Vodka Soda/Tonic","",6.00,,,,,
+"COCKTAILS","","","","Gin Tonic","",7.00,,,,,
+"DIGESTIVOS & LICORES","","","","Aguardente Velha","",4.00,,,,,
+"DIGESTIVOS & LICORES","","","","Amêndoa Amarga","",3.00,,,,,
+"DIGESTIVOS & LICORES","","","","Moscatel Favaios","",2.00,,,,,
+"DIGESTIVOS & LICORES","","","","Licor Beirão","",3.00,,,,,
+"DIGESTIVOS & LICORES","","","","Vinho do Porto","",3.00,,,,,
+"DIGESTIVOS & LICORES","","","","Whisky","",5.00,,,,,
+"DIGESTIVOS & LICORES","","","","Shot","",2.00,,,,,
+```

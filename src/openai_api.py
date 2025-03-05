@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # Initialize OpenAI client
     client = OpenAI(api_key=_OPENAI_API_KEY)
 
-    print(f"OpenAI client initialized with model: {MODEL}")
+    print(f"OpenAI client initialized. We will be using model {MODEL}")
 
     # ====================================================================
     # Step 2. Generating text with OpenAI
