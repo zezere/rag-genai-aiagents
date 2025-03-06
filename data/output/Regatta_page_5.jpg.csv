@@ -1,9 +1,0 @@
-CategoryTitle,CategoryTitleEn,SubcategoryTitle,SubcategoryTitleEn,ItemName,ItemNameEn,ItemPrice,Calories,PortionSize,Availability,ItemDescription,ItemDescriptionEn
-"VINHOS","WINES","","","VINHO A COPO","Glass of wine",3.00,,,1,"Branco White / Tinto Red / Rosé",""
-"VINHOS","WINES","","","JARRO DE VINHO","Wine jug",8.50,,,1,"Branco White / Tinto Red",""
-"VINHOS","WINES","","","SANGRIA JARRO","",15.00,,,1,"Tinto Tradicional/ Red Tradicional Frutos Vermelhos/ Red Fruits",""
-"VINHOS","WINES","Vinho Branco","White wine","Tavedo Burmester, Douro","",13.50,,,1,"",""
-"VINHOS","WINES","Vinho Branco","White wine","Rabo de Ovelha, Alentejo","",15.50,,,1,"",""
-"VINHOS","WINES","Vinho Rosé","Rosé wine","Tavedo Burmester, Douro","",13.90,,,1,"",""
-"VINHOS","WINES","Vinho Tinto","Red wine","Tavedo Burmester, Douro","",13.50,,,1,"",""
-"VINHOS","WINES","Vinho Tinto","Red wine","Vale de Vila Reserva, Douro","",16.50,,,1,"",""

@@ -118,7 +118,7 @@ if __name__ == "__main__":
     "SOPAS","SOUPS","","","Sopa Vegetariana","Vegetarian Soup",3.95,150,"500ml",1,"Galinha, Vegetais, coco e aroma decaril","Chicken, Vegetables & touch of coconut and curry"
     """
 
-    print(f"System promt is: {system_prompt}")
+    print(f"System prompt is: {system_prompt}")
 
     # ====================================================================
     # Step 3. Open image files in binary mode and encode them in base64

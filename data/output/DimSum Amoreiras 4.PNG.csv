@@ -1,8 +1,0 @@
-```csv
-CategoryTitle,CategoryTitleEn,SubcategoryTitle,SubcategoryTitleEn,ItemName,ItemNameEn,ItemPrice,Calories,PortionSize,Availability,ItemDescription,ItemDescriptionEn
-"SOBREMESAS","DESSERTS","","","Crepe Banana e Chocolate","Crepe Banana & Chocolate",3.40,,,,,
-"SOBREMESAS","DESSERTS","MOCHIS","","Mochi de Amêndoim","Peanut Mochi",1.70,,,,,
-"SOBREMESAS","DESSERTS","MOCHIS","","Mochi de Chá Verde","Green Tea Mochi",1.70,,,,,
-"SOBREMESAS","DESSERTS","MOCHIS GELADOS","","Mochi Gelado Amêndoa e Caramelo Salgado","Almond & Salted Caramel Iced Mochi",2.10,,,,,
-"SOBREMESAS","DESSERTS","MOCHIS GELADOS","","Mochi Gelado Ananás e Côco","Pineapple & Coconut Iced Mochi",2.10,,,,,
-```
