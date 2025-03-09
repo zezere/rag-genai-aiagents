@@ -22,6 +22,7 @@ This repository contains my implementations of exercises and code examples from 
    4. `openai_api.py` (Section 9)
    5. `image_to_excel_genai.py` (Capstone project, section 10)
    6. `pdf_to_image_genai.py` (Capstone project, section 10)
+   7. `rag_with_openai.py` (Section 11)
 
 ## Requirements
 - See `requirements.txt` for the full list of dependencies
