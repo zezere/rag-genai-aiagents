@@ -72,6 +72,24 @@ def query_embeddings(query, index, metadata, k=5):
     return results
 
 
+def combined_retrieved_content(results):
+    combined_content = "\n\n".join([result[0] for result in results])
+    return combined_content
+
+
+def generate_response(query, combined_content, system_prompt):
+    response = client.chat.completions.create(
+        model=OPENAI_MODEL,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": query},
+            {"role": "assistant", "content": combined_content},
+        ],
+        temperature=0,
+    )
+    return response.choices[0].message.content
+
+
 if __name__ == "__main__":
 
     print("\n\nRAG WITH OPEN AI\n")
@@ -108,6 +126,7 @@ if __name__ == "__main__":
 
     # Function to convert PDF to images is defined above
     # Here we test it with one pdf: "Things mother used to make.pdf"
+    # But you can use any pdf you want, just add it to the same folder
     pdf_path = os.path.join(PATH_TO_PDFS, "Things mother used to make.pdf")
     image_paths = pdf_to_images(pdf_path, PATH_TO_OUTPUT)
     print(
@@ -118,42 +137,42 @@ if __name__ == "__main__":
     # Step 3. Read single image with GPT
     # ====================================================================
 
-    # print("\n\nREAD SINGLE IMAGE WITH GPT\n")
+    print("\n\nREAD SINGLE IMAGE WITH GPT\n")
 
-    # # Read and encode one image
-    # # image_path = image_paths[22]
-    # image_path = os.path.join(PATH_TO_OUTPUT, "page_23.jpg")
-    # with open(image_path, "rb") as image_file:
-    #     image_data = base64.b64encode(image_file.read()).decode("utf-8")
+    # Read and encode one image
+    # image_path = image_paths[22]
+    image_path = os.path.join(PATH_TO_OUTPUT, "page_23.jpg")
+    with open(image_path, "rb") as image_file:
+        image_data = base64.b64encode(image_file.read()).decode("utf-8")
 
-    # system_prompt = """
-    # Please analyze the content of this image and extract any related recipe information.
-    # """
+    system_prompt = """
+    Please analyze the content of this image and extract any related recipe information.
+    """
 
-    # print(f"Reading image: {image_path}")
+    print(f"Reading image: {image_path}")
 
-    # response = client.chat.completions.create(
-    #     model=OPENAI_MODEL,
-    #     messages=[
-    #         {"role": "system", "content": system_prompt},
-    #         {
-    #             "role": "user",
-    #             "content": [
-    #                 "This is an image from a page of a recipe book.",
-    #                 {
-    #                     "type": "image_url",
-    #                     "image_url": {
-    #                         "url": f"data:image/jpeg;base64,{image_data}",
-    #                         "detail": "low",
-    #                     },
-    #                 },
-    #             ],
-    #         },
-    #     ],
-    # )
+    response = client.chat.completions.create(
+        model=OPENAI_MODEL,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {
+                "role": "user",
+                "content": [
+                    "This is an image from a page of a recipe book.",
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{image_data}",
+                            "detail": "low",
+                        },
+                    },
+                ],
+            },
+        ],
+    )
 
-    # gpt_response = response.choices[0].message.content
-    # print(f"GPT response: {gpt_response}")
+    gpt_response = response.choices[0].message.content
+    print(f"GPT response: {gpt_response}")
 
     # ====================================================================
     # Step 4. Enhance system prompt to return structured response
@@ -170,29 +189,29 @@ if __name__ == "__main__":
     system.
     """
 
-    # response = client.chat.completions.create(
-    #     model=OPENAI_MODEL,
-    #     messages=[
-    #         {"role": "system", "content": system_prompt2},
-    #         {
-    #             "role": "user",
-    #             "content": [
-    #                 "This is an image from a page of a recipe book.",
-    #                 {
-    #                     "type": "image_url",
-    #                     "image_url": {
-    #                         "url": f"data:image/jpeg;base64,{image_data}",
-    #                         "detail": "low",
-    #                     },
-    #                 },
-    #             ],
-    #         },
-    #     ],
-    #     temperature=0,
-    # )
+    response = client.chat.completions.create(
+        model=OPENAI_MODEL,
+        messages=[
+            {"role": "system", "content": system_prompt2},
+            {
+                "role": "user",
+                "content": [
+                    "This is an image from a page of a recipe book.",
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{image_data}",
+                            "detail": "low",
+                        },
+                    },
+                ],
+            },
+        ],
+        temperature=0,
+    )
 
-    # gpt_response2 = response.choices[0].message.content
-    # print(f"GPT response: {gpt_response2}")
+    gpt_response2 = response.choices[0].message.content
+    print(f"GPT response: {gpt_response2}")
 
     # ====================================================================
     # Step 5. Read all images with GPT
@@ -201,7 +220,7 @@ if __name__ == "__main__":
     print("\n\nREAD ALL IMAGES WITH GPT\n")
 
     extracted_recipes = []
-    for image_path in image_paths[21:29]:  # limiting this otherwise it takes very long
+    for image_path in image_paths:
         print(f"Processing image: {image_path}")
         with open(image_path, "rb") as image_file:
             image_data = base64.b64encode(image_file.read()).decode("utf-8")
@@ -347,7 +366,8 @@ if __name__ == "__main__":
 
     print("\n\nCOMBINE RESULTS\n")
 
-    combined_content = "\n\n".join([result[0] for result in results])
+    # Using a very simple function defined above
+    combined_content = combined_retrieved_content(results)
     print(f"Combined content:\n{combined_content[:500]} ... etc")
 
     # ====================================================================
@@ -371,20 +391,44 @@ if __name__ == "__main__":
     """
 
     # Substep II: Define function to retrieve from API
-    def generate_response(query, combined_content, system_prompt):
-        response = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": query},
-                {"role": "assistant", "content": combined_content},
-            ],
-            temperature=0,
-        )
-        return response.choices[0].message.content
+    # Fuction defined above as generate_response()
 
     # Substep III: Get the results
     query = "how to make bread"
     print(f"Testing with query: {query}\n")
     response = generate_response(query, combined_content, system_prompt3)
     print(f"Response:\n{response}\n")
+
+    # ====================================================================
+    # Step 13. Complete RAG system implementation
+    #
+    # Completing the RAG system consists of these (sub)steps:
+    #   Substep I: Retrieval - retrieve relevant results based on query
+    #   Substep II: Content merge - combine retrieved content into single string
+    #   Substep III: Generation - generate response based on query and combined content
+    # ====================================================================
+
+    print("\n\nCOMPLETE RAG SYSTEM IMPLEMENTATION\n")
+
+    # Substep I: Retrieval
+    results = query_embeddings(query, index, metadata, k=5)
+
+    # Substep II: Content merge
+    combined_content = combined_retrieved_content(results)
+
+    # Substep III: Generation
+
+    query = "How to make bread?"
+    print(f"Testing with query: {query}\n")
+    response = generate_response(query, combined_content, system_prompt3)
+    print(f"\nResponse:\n{response}\n")
+
+    query = "How to make the best chocolate cake?"
+    print(f"Testing with query: {query}\n")
+    response = generate_response(query, combined_content, system_prompt3)
+    print(f"\nResponse:\n{response}\n")
+
+    query = "I want something vegan"
+    print(f"Testing with query: {query}\n")
+    response = generate_response(query, combined_content, system_prompt3)
+    print(f"\nResponse:\n{response}\n")
